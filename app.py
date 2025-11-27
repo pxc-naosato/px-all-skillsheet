@@ -607,27 +607,10 @@ def load_from_excel_callback():
             xl = pd.ExcelFile(uploaded_file)
             df = choose_best_sheet(xl)
             if df is None:
-                use_ai_parsing = True
-                extracted_text = extract_text_from_excel_general(uploaded_file)
                 return
-
-            st.write(df)
                 
-            # --- 個人情報＆資格 ---
-            pi = read_personal(df)
-            st.session_state.pi_furigana = pi["furigana"]
-            st.session_state.pi_name = pi["name"]
-            st.session_state.pi_address = pi["address"]
-            st.session_state.pi_nearest_station = pi["station"]
-            st.session_state.pi_education = pi["education"]
-            st.session_state.pi_birth_date = pi["birth"]
-            st.session_state.pi_gender = pi["gender"]
-            st.session_state.pi_available_date = pi["available"]
-            st.session_state.pi_qualifications_input = pi["qualification"]
-            st.session_state.pi_summary = pi["summary"]
-        
-            # --- 業務経歴 ---
-            st.session_state.projects = parse_projects(df)
+            use_ai_parsing = True
+            extracted_text = extract_text_from_excel_general(uploaded_file)
 
             st.success("Excelの内容を入力欄へ反映しました。")
 
