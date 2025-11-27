@@ -510,7 +510,7 @@ def parse_resume_with_ai(text_content: str):
         st.error("Gemini APIキーが設定されていません。")
         return None
 
-    model = genai.GenerativeModel("gemini-1.5-flash") # JSONモードが得意なモデル推奨
+    model = genai.GenerativeModel("gemini-2.5-flash") # JSONモードが得意なモデル推奨
     
     # プロンプト定義
     prompt = dedent("""
