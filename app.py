@@ -610,6 +610,8 @@ def load_from_excel_callback():
                 use_ai_parsing = True
                 extracted_text = extract_text_from_excel_general(uploaded_file)
                 return
+
+            st.write(df)
                 
             # --- 個人情報＆資格 ---
             pi = read_personal(df)
