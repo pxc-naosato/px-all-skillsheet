@@ -1139,7 +1139,7 @@ def ai_impr():
                     content_count += 1
 
                 # --- 7行目 (機種・OS) ---
-                os = [s.strip() for s in re.split(r"[/,、]", p.get("os", "")) if s.strip()]ｓ
+                os = [s.strip() for s in re.split(r"[/,、]", p.get("os", "")) if s.strip()]
             
                 for model in range(len(os)):
                     style(ws.cell(row=start_row + model, column=7, value=os[model]), font=work_history_font)
