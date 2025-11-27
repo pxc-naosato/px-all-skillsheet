@@ -8,6 +8,7 @@ import google.generativeai as genai
 import os
 import requests
 import docx
+import json
 from textwrap import dedent
 from typing import Union
 from pypdf import PdfReader
