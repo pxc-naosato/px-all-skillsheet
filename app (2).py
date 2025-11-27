@@ -7,8 +7,10 @@ import re
 import google.generativeai as genai
 import os
 import requests
+import docx
 from textwrap import dedent
 from typing import Union
+from pypdf import PdfReader
 
 # =========================
 # 設定（APIキーは任意）
@@ -464,6 +466,109 @@ def parse_projects(df: pd.DataFrame) -> list:
     projects = [p for p in projects if (p["project_name"] or p["work_content"])]
     return projects
 
+def extract_text_from_pdf(file) -> str:
+    try:
+        reader = PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+        return text
+    except Exception as e:
+        return f"Error reading PDF: {e}"
+
+def extract_text_from_docx(file) -> str:
+    try:
+        doc = docx.Document(file)
+        text = "\n".join([para.text for para in doc.paragraphs])
+        # 表組みの中身も簡易的に取得
+        for table in doc.tables:
+            for row in table.rows:
+                row_text = [cell.text for cell in row.cells]
+                text += " | ".join(row_text) + "\n"
+        return text
+    except Exception as e:
+        return f"Error reading Word: {e}"
+
+def extract_text_from_excel_general(file) -> str:
+    """社外Excel用に、全シートのテキストをざっくり抽出する"""
+    try:
+        xl = pd.ExcelFile(file)
+        text = ""
+        for sheet in xl.sheet_names:
+            df = xl.parse(sheet, dtype=str).fillna("")
+            text += f"--- Sheet: {sheet} ---\n"
+            # ヘッダーとデータをCSV風テキストに変換
+            text += df.to_csv(index=False, sep="\t")
+            text += "\n"
+        return text
+    except Exception as e:
+        return f"Error reading Excel: {e}"
+
+def parse_resume_with_ai(text_content: str):
+    """テキスト化された経歴書をGeminiに投げてJSON構造化する"""
+    if not API_KEY:
+        st.error("Gemini APIキーが設定されていません。")
+        return None
+
+    model = genai.GenerativeModel("gemini-1.5-flash") # JSONモードが得意なモデル推奨
+    
+    # プロンプト定義
+    prompt = dedent("""
+        あなたは優秀なデータ入力アシスタントです。
+        以下の職務経歴書（テキストデータ）から情報を抽出し、指定のJSON形式で出力してください。
+        
+        【抽出ルール】
+        - 日付は "YYYY-MM-DD" 形式。不明な場合は null または ""。
+        - 性別は "男性", "女性", "その他", "未選択" のいずれか。
+        - 資格は改行区切りの1つの文字列にする。
+        - 稼働可能日が明記されていない場合は今日の日付。
+        - 案件リストは新しい順（降順）または記載順に抽出。
+        - 技術要素（OS, 言語, DBなど）は文脈から判断して振り分ける。不明なら "lang_tool" にまとめる。
+        - 作業工程は以下のリストから当てはまるものを選んでリスト化する:
+          ["調査分析、要件定義", "基本（外部）設計", "詳細（内部）設計", "コーディング・単体テスト", "IT・ST", "システム運用・保守", "サーバー構築・運用管理", "DB構築・運用管理", "ネットワーク運用保守", "ヘルプ・サポート", "その他"]
+        
+        【出力JSONスキーマ】
+        {
+            "furigana": "フリガナ",
+            "name": "氏名",
+            "birth_date": "YYYY-MM-DD",
+            "gender": "性別",
+            "address": "現住所（都道府県市区町村までで可）",
+            "station": "最寄駅",
+            "education": "最終学歴",
+            "available_date": "YYYY-MM-DD",
+            "qualification": "資格リスト文字列",
+            "summary": "自己PRや経歴要約",
+            "projects": [
+                {
+                    "start_date": "YYYY-MM-DD",
+                    "end_date": "YYYY-MM-DD",
+                    "project_name": "案件名",
+                    "industry": "業種",
+                    "role": "役割(PM, SE, PGなど)",
+                    "position": "ポジション(メンバーなど)",
+                    "scale": "規模",
+                    "os": "OS",
+                    "lang_tool": "言語・ツール",
+                    "db_dc": "DB・MW",
+                    "work_content": "作業内容（箇条書き推奨）",
+                    "work_process_list": ["工程1", "工程2"]
+                }
+            ]
+        }
+        【対象データ】
+    """) + "\n" + text_content[:30000] # 文字数制限対策（必要に応じて調整）
+
+    try:
+        response = model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json"}
+        )
+        return json.loads(response.text)
+    except Exception as e:
+        st.error(f"AI解析エラー: {e}")
+        return None
+
 # =========================
 # Session 初期化
 # =========================
@@ -491,33 +596,99 @@ def load_from_excel_callback():
     uploaded_file = st.session_state.excel_uploader
     if uploaded_file is None:
         return
-    try:
-        xl = pd.ExcelFile(uploaded_file)
-        df = choose_best_sheet(xl)
-        if df is None:
-            st.error("有効なシートが見つかりませんでした。")
-            return
+
+    file_ext = os.path.splitext(uploaded_file.name)[1].lower()
+    use_ai_parsing = False
+    extracted_text = ""
+
+    if file_ext in [".xlsx", ".xls"]:
+        try:
+            xl = pd.ExcelFile(uploaded_file)
+            df = choose_best_sheet(xl)
+            if df is None:
+                use_ai_parsing = True
+                extracted_text = extract_text_from_excel_general(uploaded_file)
+                return
                 
-        # --- 個人情報＆資格 ---
-        pi = read_personal(df)
-        st.session_state.pi_furigana = pi["furigana"]
-        st.session_state.pi_name = pi["name"]
-        st.session_state.pi_address = pi["address"]
-        st.session_state.pi_nearest_station = pi["station"]
-        st.session_state.pi_education = pi["education"]
-        st.session_state.pi_birth_date = pi["birth"]
-        st.session_state.pi_gender = pi["gender"]
-        st.session_state.pi_available_date = pi["available"]
-        st.session_state.pi_qualifications_input = pi["qualification"]
-        st.session_state.pi_summary = pi["summary"]
+            # --- 個人情報＆資格 ---
+            pi = read_personal(df)
+            st.session_state.pi_furigana = pi["furigana"]
+            st.session_state.pi_name = pi["name"]
+            st.session_state.pi_address = pi["address"]
+            st.session_state.pi_nearest_station = pi["station"]
+            st.session_state.pi_education = pi["education"]
+            st.session_state.pi_birth_date = pi["birth"]
+            st.session_state.pi_gender = pi["gender"]
+            st.session_state.pi_available_date = pi["available"]
+            st.session_state.pi_qualifications_input = pi["qualification"]
+            st.session_state.pi_summary = pi["summary"]
         
-        # --- 業務経歴 ---
-        st.session_state.projects = parse_projects(df)
+            # --- 業務経歴 ---
+            st.session_state.projects = parse_projects(df)
 
-        st.success("Excelの内容を入力欄へ反映しました。")
+            st.success("Excelの内容を入力欄へ反映しました。")
 
-    except Exception as e:
-        st.error(f"読み込み中にエラー: {e}")
+        except Exception as e:
+            use_ai_parsing = True
+            extracted_text = extract_text_from_excel_general(uploaded_file)
+
+    elif file_ext == ".pdf":
+        use_ai_parsing = True
+        extracted_text = extract_text_from_pdf(uploaded_file)
+    
+    elif file_ext in [".docx", ".doc"]:
+        use_ai_parsing = True
+        extracted_text = extract_text_from_docx(uploaded_file)
+
+    if use_ai_parsing:
+        st.info("社内フォーマットではないため、AIによる自動解析を実行しています...")
+        data = parse_resume_with_ai(extracted_text)
+        
+        if data:
+            try:
+                # 基本情報の反映
+                st.session_state.pi_furigana = data.get("furigana", "")
+                st.session_state.pi_name = data.get("name", "")
+                st.session_state.pi_address = data.get("address", "")
+                st.session_state.pi_nearest_station = data.get("station", "")
+                st.session_state.pi_education = data.get("education", "")
+                
+                # 日付変換ユーティリティ
+                def parse_iso_date(s):
+                    if not s: return None
+                    try: return datetime.strptime(s, "%Y-%m-%d").date()
+                    except: return None
+
+                st.session_state.pi_birth_date = parse_iso_date(data.get("birth_date")) or date(2000,1,1)
+                st.session_state.pi_available_date = parse_iso_date(data.get("available_date")) or datetime.now().date()
+                st.session_state.pi_gender = data.get("gender", "未選択")
+                st.session_state.pi_qualifications_input = data.get("qualification", "")
+                st.session_state.pi_summary = data.get("summary", "")
+
+                # 案件情報の反映
+                projects = []
+                for p in data.get("projects", []):
+                    projects.append({
+                        "start_date": parse_iso_date(p.get("start_date")) or date(2020,1,1),
+                        "end_date": parse_iso_date(p.get("end_date")) or datetime.now().date(),
+                        "project_name": p.get("project_name", ""),
+                        "industry": p.get("industry", ""),
+                        "work_content": p.get("work_content", ""),
+                        "os": p.get("os", ""),
+                        "db_dc": p.get("db_dc", ""),
+                        "lang_tool": p.get("lang_tool", ""),
+                        "work_process_list": p.get("work_process_list", []),
+                        "work_process_str": ", ".join(p.get("work_process_list", [])),
+                        "role": p.get("role", ""),
+                        "position": p.get("position", ""),
+                        "scale": p.get("scale", ""),
+                    })
+                st.session_state.projects = projects
+                st.success("AI解析によりデータを読み込みました。内容を確認・修正してください。")
+            except Exception as e:
+                st.error(f"データ反映中にエラーが発生しました: {e}")
+        else:
+            st.error("AIによる解析に失敗しました。")
 
 def load_googledrive_excel_callback():
     gdrive_url = st.session_state.gdrive_url
@@ -635,7 +806,7 @@ with st.sidebar:
     
 uploaded_file = st.file_uploader(
     "Excelファイル（.xlsx推奨）",
-    type=["xlsx", "csv"],
+    type=["xlsx", "xls", "pdf", "docx"],
     key="excel_uploader",
     on_change=load_from_excel_callback)
 
