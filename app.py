@@ -1143,8 +1143,8 @@ def ai_impr():
                 if p.get("os", ""):
                     os = [s.strip() for s in re.split(r"[/,、]", p.get("os", "")) if s.strip()]
             
-                for model in range(len(os)):
-                    style(ws.cell(row=start_row + model, column=7, value=os[model]), font=work_history_font)
+                    for model in range(len(os)):
+                        style(ws.cell(row=start_row + model, column=7, value=os[model]), font=work_history_font)
             
                 # --- 8行目 (言語/ツール・DB/DC) ---
                 lang_tool = [s.strip() for s in re.split(r"[/,、]", p.get("lang_tool", "")) if s.strip()]
