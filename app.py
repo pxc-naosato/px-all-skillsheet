@@ -783,8 +783,8 @@ def add_new_project():
 # =========================
 # UI
 # =========================
-st.set_page_config(page_title="PXグループスキルシート作成アプリ", layout="centered")
-st.title("PXグループスキルシート作成")
+st.set_page_config(page_title="社外スキルシートPXグループ変換アプリ", layout="centered")
+st.title("社外スキルシートPXグループ変換アプリ")
 st.caption("経歴書Excelファイルをアップロードするか、GoogleドライブのURLを入力してください")
 
 with st.sidebar:
