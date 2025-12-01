@@ -1147,21 +1147,23 @@ def ai_impr():
                         style(ws.cell(row=start_row + model, column=7, value=os[model]), font=work_history_font)
             
                 # --- 8行目 (言語/ツール・DB/DC) ---
-                lang_tool = [s.strip() for s in re.split(r"[/,、]", p.get("lang_tool", "")) if s.strip()]
-                db_dc = [s.strip() for s in re.split(r"[/,、]", p.get("db_dc", "")) if s.strip()]
-            
                 lang_count = 0
                 db_count = 0
-            
-                for lang in range(len(lang_tool)):
-                    style(ws.cell(row=start_row + lang, column=8, value=lang_tool[lang]), font=work_history_font)
-                    lang_count += 1
 
-                if lang_tool != db_dc:
-                    db_count += 1
-                    for db in range(len(db_dc)):
-                        style(ws.cell(row=start_row + db + (lang_count + 1), column=8, value=db_dc[db]), font=work_history_font)
+                if p.get("lang_tool", ""):
+                    lang_tool = [s.strip() for s in re.split(r"[/,、]", p.get("lang_tool", "")) if s.strip()]
+            
+                    for lang in range(len(lang_tool)):
+                        style(ws.cell(row=start_row + lang, column=8, value=lang_tool[lang]), font=work_history_font)
+                        lang_count += 1
+
+                if p.get("db_dc", ""):
+                    db_dc = [s.strip() for s in re.split(r"[/,、]", p.get("db_dc", "")) if s.strip()]
+                    if lang_tool != db_dc:
                         db_count += 1
+                        for db in range(len(db_dc)):
+                            style(ws.cell(row=start_row + db + (lang_count + 1), column=8, value=db_dc[db]), font=work_history_font)
+                            db_count += 1
 
                 #st.write("変更前:", cur, lang_count, db_count, content_count, lang_count + db_count - content_count, cur + lang_count + db_count - content_count)
             
