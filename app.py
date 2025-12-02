@@ -1159,6 +1159,7 @@ def ai_impr():
                     for lang in range(len(lang_tool)):
                         style(ws.cell(row=start_row + lang, column=8, value=lang_tool[lang]), font=work_history_font)
                         lang_count += 1
+                        st.write(lang_count, lang_tool[lang])
 
                 if p.get("db_dc", ""):
                     db_dc = [s.strip() for s in re.split(r"[/,、]", p.get("db_dc", "")) if s.strip()]
@@ -1197,7 +1198,7 @@ def ai_impr():
                 #st.write("変更後:", cur, lang_count, db_count, content_count, lang_count + db_count - content_count, cur + lang_count + db_count - content_count)
 
                 
-                st.write(lang_count, db_count, content_count, label_count, lang_count + db_count - content_count, label_count - content_count)
+                #st.write(lang_count, db_count, content_count, label_count, lang_count + db_count - content_count, label_count - content_count)
                 if (lang_count + db_count - content_count) < (label_count - content_count):
                     cur += label_count - content_count
                 else:
