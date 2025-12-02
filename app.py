@@ -1196,6 +1196,8 @@ def ai_impr():
 
                 #st.write("変更後:", cur, lang_count, db_count, content_count, lang_count + db_count - content_count, cur + lang_count + db_count - content_count)
 
+                
+                st.write(lang_count,db_count,content_count,lang_count + db_count - content_count,label_count - content_count)
                 if (lang_count + db_count - content_count) < (label_count - content_count):
                     cur += label_count - content_count
                 else:
