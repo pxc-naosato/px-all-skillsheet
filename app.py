@@ -1162,8 +1162,8 @@ def ai_impr():
 
                 if p.get("db_dc", ""):
                     db_dc = [s.strip() for s in re.split(r"[/,、]", p.get("db_dc", "")) if s.strip()]
+                    
                     if lang_tool != db_dc:
-                        db_count += 1
                         for db in range(len(db_dc)):
                             style(ws.cell(row=start_row + db + (lang_count + 1), column=8, value=db_dc[db]), font=work_history_font)
                             db_count += 1
