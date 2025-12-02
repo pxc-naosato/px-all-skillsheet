@@ -728,7 +728,7 @@ def enhance_with_ai_callback():
         # サマリ
         prompt1 = dedent("""
             あなたは経験豊富なキャリアアドバイザーです。以下の「開発経験サマリ」を、
-            簡潔で専門的な表現に整えてください。出力は修正後の本文のみ。
+            300文字ほどで簡潔で専門的な表現に整えてください。出力は修正後の本文のみ。
         """) + "\n" + st.session_state.pi_summary
         st.session_state.pi_summary = model.generate_content(prompt1).text
 
