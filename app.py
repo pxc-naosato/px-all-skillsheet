@@ -771,8 +771,8 @@ def load_googledrive_excel_callback():
                     st.error(f"データ反映中にエラーが発生しました: {e}")
             else:
                st.error("AIによる解析に失敗しました。")
-        except Exception as e:
-            st.error(f"読み込み中にエラー: {e}")
+    except Exception as e:
+        st.error(f"読み込み中にエラー: {e}")
 
 def enhance_with_ai_callback():
     if not API_KEY:
