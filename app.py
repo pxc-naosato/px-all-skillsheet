@@ -569,7 +569,7 @@ def parse_resume_with_ai(text_content: str):
             prompt,
             generation_config={"_mime_type": "application/json"}
         )
-        return json.loads(.text)
+        return json.loads(response.text)
     except Exception as e:
         st.error(f"AI解析エラー: {e}")
         return None
