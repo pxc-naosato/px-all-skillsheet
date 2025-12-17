@@ -631,7 +631,7 @@ def load_from_excel_callback():
         extracted_text = extract_text_from_docx(uploaded_file)
 
     if use_ai_parsing:
-        st.info("社内フォーマットではないため、AIによる自動解析を実行しています...")
+        st.info("AIによる自動解析を実行しています...")
         data = parse_resume_with_ai(extracted_text)
         
         if data:
@@ -692,58 +692,79 @@ def load_googledrive_excel_callback():
         download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
         content = requests.get(download_url).content
             
-        xl = io.BytesIO(content)
-        df = pd.read_excel(xl)
-        if df is None:
-            st.error("有効なシートが見つかりませんでした。")
-            return
+        if file_ext in [".xlsx", ".xls"]:
+            try:
+                xl = pd.ExcelFile(uploaded_file)
+                df = choose_best_sheet(xl)
+                if df is None:
+                    return
                 
-        # --- 個人情報＆資格 ---
-        pi = read_personal(df)
-        st.session_state.pi_furigana = pi["furigana"]
-        st.session_state.pi_name = pi["name"]
-        st.session_state.pi_address = pi["address"]
-        st.session_state.pi_nearest_station = pi["station"]
-        st.session_state.pi_education = pi["education"]
-        st.session_state.pi_birth_date = pi["birth"]
-        st.session_state.pi_gender = pi["gender"]
-        st.session_state.pi_available_date = pi["available"]
-        st.session_state.pi_qualifications_input = pi["qualification"]
-        st.session_state.pi_summary = pi["summary"]
+                use_ai_parsing = True
+                extracted_text = extract_text_from_excel_general(uploaded_file)
+
+                st.success("Excelの内容を入力欄へ反映しました。")
+
+            except Exception as e:
+                use_ai_parsing = True
+                extracted_text = extract_text_from_excel_general(uploaded_file)
+
+        elif file_ext == ".pdf":
+            use_ai_parsing = True
+            extracted_text = extract_text_from_pdf(uploaded_file)
+    
+        elif file_ext in [".docx", ".doc"]:
+            use_ai_parsing = True
+            extracted_text = extract_text_from_docx(uploaded_file)
+
+        if use_ai_parsing:
+            st.info("AIによる自動解析を実行しています...")
+            data = parse_resume_with_ai(extracted_text)
         
-        # --- 業務経歴 ---
-        st.session_state.projects = parse_projects(df)
+            if data:
+                try:
+                    # 基本情報の反映
+                st.session_state.pi_furigana = data.get("furigana", "")
+                    st.session_state.pi_name = data.get("name", "")
+                    st.session_state.pi_address = data.get("address", "")
+                    st.session_state.pi_nearest_station = data.get("station", "")
+                    st.session_state.pi_education = data.get("education", "")
+                
+                    # 日付変換ユーティリティ
+                    def parse_iso_date(s):
+                        if not s: return None
+                        try: return datetime.strptime(s, "%Y-%m-%d").date()
+                        except: return None
 
-        st.success("Excelの内容を入力欄へ反映しました。")
+                    st.session_state.pi_birth_date = parse_iso_date(data.get("birth_date")) or date(2000,1,1)
+                    st.session_state.pi_available_date = parse_iso_date(data.get("available_date")) or datetime.now().date()
+                    st.session_state.pi_gender = data.get("gender", "未選択")
+                    st.session_state.pi_qualifications_input = data.get("qualification", "")
+                    st.session_state.pi_summary = data.get("summary", "")
 
-    except Exception as e:
-        st.error(f"読み込み中にエラー: {e}")
-
-def enhance_with_ai_callback():
-    if not API_KEY:
-        st.warning("Gemini APIキーが未設定のためスキップしました。")
-        return
-    try:
-        model = genai.GenerativeModel("gemini-2.5-flash")
-        # サマリ
-        prompt1 = dedent("""
-            あなたは経験豊富なキャリアアドバイザーです。以下の「開発経験サマリ」を、
-            300文字ほどで簡潔で専門的な表現に整えてください。出力は修正後の本文のみ。
-        """) + "\n" + st.session_state.pi_summary
-        st.session_state.pi_summary = model.generate_content(prompt1).text
-
-        # 各案件
-        for i, p in enumerate(st.session_state.projects):
-            if p.get("work_content"):
-                prompt2 = dedent("""
-                    あなたは経験豊富なキャリアアドバイザーです。以下の「作業内容」を、
-                    実績が簡潔に盛らないで伝わるように箇条書きに整えてください。出力は本文のみ。
-                """) + "\n" + p["work_content"]
-                st.session_state.projects[i]["work_content"] = model.generate_content(prompt2).text
-
-        st.success("AIで文章を整形しました。")
-    except Exception as e:
-        st.error(f"AI処理でエラー: {e}")
+                    # 案件情報の反映
+                    projects = []
+                    for p in data.get("projects", []):
+                        projects.append({
+                            "start_date": parse_iso_date(p.get("start_date")) or date(2020,1,1),
+                            "end_date": parse_iso_date(p.get("end_date")) or datetime.now().date(),
+                            "project_name": p.get("project_name", ""),
+                            "industry": p.get("industry", ""),
+                            "work_content": p.get("work_content", ""),
+                            "os": p.get("os", ""),
+                            "db_dc": p.get("db_dc", ""),
+                            "lang_tool": p.get("lang_tool", ""),
+                            "work_process_list": p.get("work_process_list", []),
+                            "work_process_str": ", ".join(p.get("work_process_list", [])),
+                            "role": p.get("role", ""),
+                            "position": p.get("position", ""),
+                            "scale": p.get("scale", ""),
+                        })
+                    st.session_state.projects = projects
+                    st.success("AI解析によりデータを読み込みました。内容を確認・修正してください。")
+                except Exception as e:
+                    st.error(f"データ反映中にエラーが発生しました: {e}")
+            else:
+                st.error("AIによる解析に失敗しました。")
 
 def generate_overview_callback():
     try:
@@ -795,7 +816,7 @@ with st.sidebar:
     page = st.radio("ページ選択", ["ホーム", "基本情報", "開発経験サマリ", "業務履歴", "AIによる改善"])
     
 uploaded_file = st.file_uploader(
-    "Excelファイル（.xlsx推奨）",
+    "対応ファイル：xlsx・.xls・pdf・docx）",
     type=["xlsx", "xls", "pdf", "docx"],
     key="excel_uploader",
     on_change=load_from_excel_callback)
