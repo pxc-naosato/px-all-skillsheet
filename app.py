@@ -691,6 +691,8 @@ def load_googledrive_excel_callback():
         file_id = gdrive_url.split('/d/')[1].split('/')[0]
         download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
         content = requests.get(download_url).content
+        response = requests.get(download_url)
+        
         requests.get(download_url)
         content_type = response.headers.get('Content-Type', '').lower()
         st.write(content_type)
