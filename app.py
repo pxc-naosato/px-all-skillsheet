@@ -766,11 +766,11 @@ def load_googledrive_excel_callback():
                             "scale": p.get("scale", ""),
                         })
                     st.session_state.projects = projects
-                        st.success("AI解析によりデータを読み込みました。内容を確認・修正してください。")
-                    except Exception as e:
-                        st.error(f"データ反映中にエラーが発生しました: {e}")
-                else:
-                    st.error("AIによる解析に失敗しました。")
+                    st.success("AI解析によりデータを読み込みました。内容を確認・修正してください。")
+                except Exception as e:
+                    st.error(f"データ反映中にエラーが発生しました: {e}")
+            else:
+               st.error("AIによる解析に失敗しました。")
         except Exception as e:
             st.error(f"読み込み中にエラー: {e}")
 
