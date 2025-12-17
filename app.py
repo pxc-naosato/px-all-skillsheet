@@ -718,7 +718,33 @@ def load_googledrive_excel_callback():
             extracted_text = extract_text_from_docx(uploaded_file)
     except Exception as e:
         st.error(f"読み込み中にエラー: {e}")
-        
+
+def enhance_with_ai_callback():
+    if not API_KEY:
+        st.warning("Gemini APIキーが未設定のためスキップしました。")
+        return
+    try:
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        # サマリ
+        prompt1 = dedent("""
+            あなたは経験豊富なキャリアアドバイザーです。以下の「開発経験サマリ」を、
+            簡潔で専門的な表現に整えてください。出力は修正後の本文のみ。
+        """) + "\n" + st.session_state.pi_summary
+        st.session_state.pi_summary = model.generate_content(prompt1).text
+
+        # 各案件
+        for i, p in enumerate(st.session_state.projects):
+            if p.get("work_content"):
+                prompt2 = dedent("""
+                    あなたは経験豊富なキャリアアドバイザーです。以下の「作業内容」を、
+                    実績が簡潔に盛らないで伝わるように箇条書きに整えてください。出力は本文のみ。
+                """) + "\n" + p["work_content"]
+                st.session_state.projects[i]["work_content"] = model.generate_content(prompt2).text
+
+        st.success("AIで文章を整形しました。")
+    except Exception as e:
+        st.error(f"AI処理でエラー: {e}")
+
 def generate_overview_callback():
     try:
         skills = set()
