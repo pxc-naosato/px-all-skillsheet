@@ -691,7 +691,8 @@ def load_googledrive_excel_callback():
         file_id = gdrive_url.split('/d/')[1].split('/')[0]
         download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
         content = requests.get(download_url).content
-            
+        content_type = response.headers.get('Content-Type', '').lower()
+        st.write(content_type)
         if file_ext in [".xlsx", ".xls"]:
             try:
                 xl = pd.ExcelFile(uploaded_file)
