@@ -716,6 +716,8 @@ def load_googledrive_excel_callback():
         elif file_ext in [".docx", ".doc"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_docx(uploaded_file)
+    except Exception as e:
+        st.error(f"読み込み中にエラー: {e}")
         
 def generate_overview_callback():
     try:
