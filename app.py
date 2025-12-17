@@ -694,7 +694,8 @@ def load_googledrive_excel_callback():
         response = requests.get(download_url)
         
         content_disposition = response.headers.get("Content-Disposition")
-        st.write(content_disposition)
+        match = re.search(r'filename="(.+)"', content_disposition)
+        st.write(content_disposition, match)
         if content_disposition in [".xlsx", ".xls"]:
             try:
                 xl = pd.ExcelFile(uploaded_file)
