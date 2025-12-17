@@ -697,7 +697,6 @@ def load_googledrive_excel_callback():
         fname_match = re.search(r'filename="(.+)"', content_disposition)
         filename = fname_match.group(1)
         file_ext = os.path.splitext(filename)[1].lower()
-        st.write(file_ext)
         
         if file_ext in [".xlsx", ".xls"]:
             try:
