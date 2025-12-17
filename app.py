@@ -717,7 +717,7 @@ def load_googledrive_excel_callback():
             use_ai_parsing = True
             extracted_text = extract_text_from_docx(uploaded_file)
 
-        if use_ai_parsing:
+        if None use_ai_parsing:
             st.info("AIによる自動解析を実行しています...")
             data = parse_resume_with_ai(extracted_text)
         
