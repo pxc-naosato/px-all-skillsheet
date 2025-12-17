@@ -716,58 +716,6 @@ def load_googledrive_excel_callback():
         elif file_ext in [".docx", ".doc"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_docx(uploaded_file)
-
-        if None use_ai_parsing:
-            st.info("AIによる自動解析を実行しています...")
-            data = parse_resume_with_ai(extracted_text)
-        
-            if data:
-                try:
-                    # 基本情報の反映
-                    st.session_state.pi_furigana = data.get("furigana", "")
-                    st.session_state.pi_name = data.get("name", "")
-                    st.session_state.pi_address = data.get("address", "")
-                    st.session_state.pi_nearest_station = data.get("station", "")
-                    st.session_state.pi_education = data.get("education", "")
-                
-                    # 日付変換ユーティリティ
-                    def parse_iso_date(s):
-                        if not s: return None
-                        try: return datetime.strptime(s, "%Y-%m-%d").date()
-                        except: return None
-
-                    st.session_state.pi_birth_date = parse_iso_date(data.get("birth_date")) or date(2000,1,1)
-                    st.session_state.pi_available_date = parse_iso_date(data.get("available_date")) or datetime.now().date()
-                    st.session_state.pi_gender = data.get("gender", "未選択")
-                    st.session_state.pi_qualifications_input = data.get("qualification", "")
-                    st.session_state.pi_summary = data.get("summary", "")
-
-                    # 案件情報の反映
-                    projects = []
-                    for p in data.get("projects", []):
-                        projects.append({
-                            "start_date": parse_iso_date(p.get("start_date")) or date(2020,1,1),
-                            "end_date": parse_iso_date(p.get("end_date")) or datetime.now().date(),
-                            "project_name": p.get("project_name", ""),
-                            "industry": p.get("industry", ""),
-                            "work_content": p.get("work_content", ""),
-                            "os": p.get("os", ""),
-                            "db_dc": p.get("db_dc", ""),
-                            "lang_tool": p.get("lang_tool", ""),
-                            "work_process_list": p.get("work_process_list", []),
-                            "work_process_str": ", ".join(p.get("work_process_list", [])),
-                            "role": p.get("role", ""),
-                            "position": p.get("position", ""),
-                            "scale": p.get("scale", ""),
-                        })
-                    st.session_state.projects = projects
-                    st.success("AI解析によりデータを読み込みました。内容を確認・修正してください。")
-                except Exception as e:
-                    st.error(f"データ反映中にエラーが発生しました: {e}")
-            else:
-                st.error("AIによる解析に失敗しました。")
-    except Exception as e:
-        st.error(f"読み込み中にエラー: {e}")
         
 def generate_overview_callback():
     try:
