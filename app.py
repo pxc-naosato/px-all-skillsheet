@@ -693,10 +693,9 @@ def load_googledrive_excel_callback():
         content = requests.get(download_url).content
         response = requests.get(download_url)
         
-        requests.get(download_url)
-        content_type = response.headers.get('Content-Type', '').lower()
-        st.write(content_type)
-        if content_type in [".xlsx", ".xls"]:
+        content_disposition = response.headers.get("Content-Disposition")
+        st.write(content_disposition)
+        if content_disposition in [".xlsx", ".xls"]:
             try:
                 xl = pd.ExcelFile(uploaded_file)
                 df = choose_best_sheet(xl)
@@ -712,11 +711,11 @@ def load_googledrive_excel_callback():
                 use_ai_parsing = True
                 extracted_text = extract_text_from_excel_general(uploaded_file)
 
-        elif content_type == ".pdf":
+        elif content_disposition == ".pdf":
             use_ai_parsing = True
             extracted_text = extract_text_from_pdf(uploaded_file)
     
-        elif content_type in [".docx", ".doc"]:
+        elif content_disposition in [".docx", ".doc"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_docx(uploaded_file)
     except Exception as e:
