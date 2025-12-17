@@ -567,7 +567,7 @@ def parse_resume_with_ai(text_content: str):
     try:
         response = model.generate_content(
             prompt,
-            generation_config={"_mime_type": "application/json"}
+            generation_config={"response_mime_type": "application/json"}
         )
         return json.loads(response.text)
     except Exception as e:
