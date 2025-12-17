@@ -567,9 +567,9 @@ def parse_resume_with_ai(text_content: str):
     try:
         response = model.generate_content(
             prompt,
-            generation_config={"response_mime_type": "application/json"}
+            generation_config={"_mime_type": "application/json"}
         )
-        return json.loads(response.text)
+        return json.loads(.text)
     except Exception as e:
         st.error(f"AI解析エラー: {e}")
         return None
@@ -691,6 +691,7 @@ def load_googledrive_excel_callback():
         file_id = gdrive_url.split('/d/')[1].split('/')[0]
         download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
         content = requests.get(download_url).content
+        requests.get(download_url)
         content_type = response.headers.get('Content-Type', '').lower()
         st.write(content_type)
         if file_ext in [".xlsx", ".xls"]:
