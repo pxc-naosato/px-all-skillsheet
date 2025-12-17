@@ -694,9 +694,12 @@ def load_googledrive_excel_callback():
         response = requests.get(download_url)
         
         content_disposition = response.headers.get("Content-Disposition")
-        match = re.search(r'filename="(.+)"', content_disposition)
-        st.write(content_disposition, match)
-        if content_disposition in [".xlsx", ".xls"]:
+        fname_match = re.search(r'filename="(.+)"', content_disposition)
+        filename = fname_match.group(1)
+        file_ext = os.path.splitext(filename)[1].lower()
+        
+        st.write(content_disposition, file_ext)
+        if file_ext in [".xlsx", ".xls"]:
             try:
                 xl = pd.ExcelFile(uploaded_file)
                 df = choose_best_sheet(xl)
@@ -712,11 +715,11 @@ def load_googledrive_excel_callback():
                 use_ai_parsing = True
                 extracted_text = extract_text_from_excel_general(uploaded_file)
 
-        elif content_disposition == ".pdf":
+        elif file_ext == ".pdf":
             use_ai_parsing = True
             extracted_text = extract_text_from_pdf(uploaded_file)
     
-        elif content_disposition in [".docx", ".doc"]:
+        elif file_ext in [".docx", ".doc"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_docx(uploaded_file)
     except Exception as e:
