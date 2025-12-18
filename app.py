@@ -701,7 +701,6 @@ def load_googledrive_excel_callback():
         
         if file_ext in [".xlsx", ".xls"]:
             try:
-                st.write("入った")
                 xl = pd.ExcelFile(uploaded_file)
                 df = choose_best_sheet(xl)
                 if df is None:
@@ -730,6 +729,7 @@ def load_googledrive_excel_callback():
         
             if data:
                 try:
+                    st.write(data)
                     # 基本情報の反映
                     st.session_state.pi_furigana = data.get("furigana", "")
                     st.session_state.pi_name = data.get("name", "")
