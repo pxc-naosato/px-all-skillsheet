@@ -708,7 +708,7 @@ def load_googledrive_excel_callback():
                 
                 use_ai_parsing = True
                 extracted_text = extract_text_from_excel_general(uploaded_file)
-                st.write(extracted_text,uploaded_file)
+                st.write(content,extracted_text,uploaded_file)
                 st.success("Excelの内容を入力欄へ反映しました。")
 
             except Exception as e:
