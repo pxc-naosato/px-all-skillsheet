@@ -729,7 +729,7 @@ def load_googledrive_excel_callback():
         
             if data:
                 try:
-                    st.write(data)
+                    st.write(extracted_text)
                     # 基本情報の反映
                     st.session_state.pi_furigana = data.get("furigana", "")
                     st.session_state.pi_name = data.get("name", "")
