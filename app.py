@@ -708,7 +708,8 @@ def load_googledrive_excel_callback():
                 
                 use_ai_parsing = True
                 extracted_text = extract_text_from_excel_general(uploaded_file)
-
+                st.write(extracted_text,uploaded_file)
+                
                 st.success("Excelの内容を入力欄へ反映しました。")
 
             except Exception as e:
@@ -729,7 +730,6 @@ def load_googledrive_excel_callback():
         
             if data:
                 try:
-                    st.write(extracted_text)
                     # 基本情報の反映
                     st.session_state.pi_furigana = data.get("furigana", "")
                     st.session_state.pi_name = data.get("name", "")
