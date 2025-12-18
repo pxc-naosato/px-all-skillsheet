@@ -701,6 +701,7 @@ def load_googledrive_excel_callback():
         
         if file_ext in [".xlsx", ".xls"]:
             try:
+                st.write("入った")
                 xl = pd.ExcelFile(uploaded_file)
                 df = choose_best_sheet(xl)
                 if df is None:
