@@ -701,8 +701,8 @@ def load_googledrive_excel_callback():
         
         if file_ext in [".xlsx", ".xls"]:
             try:
-                xl = pd.ExcelFile(uploaded_file)
-                df = choose_best_sheet(xl)
+                xl = pd.ExcelFile(content)
+                df = pd.read_excel(xl)
                 if df is None:
                     return
                 
