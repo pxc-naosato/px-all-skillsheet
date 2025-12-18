@@ -599,7 +599,6 @@ initialize_session_state()
 # =========================
 def load_from_excel_callback():
     uploaded_file = st.session_state.excel_uploader
-    st.write(uploaded_file)
     if uploaded_file is None:
         return
 
@@ -708,7 +707,7 @@ def load_googledrive_excel_callback():
                     return
                 
                 use_ai_parsing = True
-                extracted_text = extract_text_from_excel_general(uploaded_file)
+                extracted_text = extract_text_from_excel_general(content)
                 st.write(content,extracted_text,uploaded_file)
                 st.success("Excelの内容を入力欄へ反映しました。")
 
