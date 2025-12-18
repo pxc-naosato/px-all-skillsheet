@@ -713,15 +713,15 @@ def load_googledrive_excel_callback():
 
             except Exception as e:
                 use_ai_parsing = True
-                extracted_text = extract_text_from_excel_general(uploaded_file)
+                extracted_text = extract_text_from_excel_general(content)
 
         elif file_ext == ".pdf":
             use_ai_parsing = True
-            extracted_text = extract_text_from_pdf(uploaded_file)
+            extracted_text = extract_text_from_pdf(content)
     
         elif file_ext in [".docx", ".doc"]:
             use_ai_parsing = True
-            extracted_text = extract_text_from_docx(uploaded_file)
+            extracted_text = extract_text_from_docx(content)
 
         if use_ai_parsing:
             st.info("AIによる自動解析を実行しています...")
