@@ -599,6 +599,7 @@ initialize_session_state()
 # =========================
 def load_from_excel_callback():
     uploaded_file = st.session_state.excel_uploader
+    st.write(uploaded_file)
     if uploaded_file is None:
         return
 
