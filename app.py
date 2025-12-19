@@ -708,7 +708,6 @@ def load_googledrive_excel_callback():
                 
                 use_ai_parsing = True
                 extracted_text = extract_text_from_excel_general(content)
-                st.success("Excelの内容を入力欄へ反映しました。")
 
             except Exception as e:
                 use_ai_parsing = True
@@ -717,6 +716,7 @@ def load_googledrive_excel_callback():
         elif file_ext in [".pdf"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_pdf(content)
+            st.success("PDF読み込み中")
     
         elif file_ext in [".docx", ".doc"]:
             use_ai_parsing = True
@@ -725,9 +725,10 @@ def load_googledrive_excel_callback():
         if use_ai_parsing:
             st.info("AIによる自動解析を実行しています...")
             data = parse_resume_with_ai(extracted_text)
+            st.success("Word読み込み中")
         
             if data:
-                st.write(data,extracted_text)
+                st.write(data)
                 try:
                     # 基本情報の反映
                     st.session_state.pi_furigana = data.get("furigana", "")
