@@ -636,6 +636,8 @@ def load_from_excel_callback():
         
         if data:
             try:
+                data = read_personal(data)
+                
                 # 基本情報の反映
                 st.session_state.pi_furigana = data.get("furigana", "")
                 st.session_state.pi_name = data.get("name", "")
