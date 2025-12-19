@@ -727,6 +727,7 @@ def load_googledrive_excel_callback():
             data = parse_resume_with_ai(extracted_text)
         
             if data:
+                st.write(data,extracted_text)
                 try:
                     # 基本情報の反映
                     st.session_state.pi_furigana = data.get("furigana", "")
