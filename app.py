@@ -531,33 +531,36 @@ def load_from_excel_callback():
     if uploaded_file is None:
         return
 
+    response = requests.get(download_url)
+    content = io.BytesIO(response.content)
+
     file_ext = os.path.splitext(uploaded_file.name)[1].lower()
     use_ai_parsing = False
     extracted_text = ""
 
     if file_ext in [".xlsx", ".xls"]:
         try:
-            xl = pd.ExcelFile(uploaded_file)
+            xl = pd.ExcelFile(content)
             df = choose_best_sheet(xl)
             if df is None:
                 return
                 
             use_ai_parsing = True
-            extracted_text = extract_text_from_excel_general(uploaded_file)
+            extracted_text = extract_text_from_excel_general(content)
 
             st.success("Excelの内容を入力欄へ反映しました。")
 
         except Exception as e:
             use_ai_parsing = True
-            extracted_text = extract_text_from_excel_general(uploaded_file)
+            extracted_text = extract_text_from_excel_general(content)
 
     elif file_ext == ".pdf":
         use_ai_parsing = True
-        extracted_text = extract_text_from_pdf(uploaded_file)
+        extracted_text = extract_text_from_pdf(content)
     
     elif file_ext in [".docx", ".doc"]:
         use_ai_parsing = True
-        extracted_text = extract_text_from_docx(uploaded_file)
+        extracted_text = extract_text_from_docx(content)
 
     if use_ai_parsing:
         st.info("AIによる自動解析を実行しています...")
