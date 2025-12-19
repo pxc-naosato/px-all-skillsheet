@@ -698,7 +698,6 @@ def load_googledrive_excel_callback():
         fname_match = re.search(r'filename="(.+)"', content_disposition)
         filename = fname_match.group(1)
         file_ext = os.path.splitext(filename)[1].lower()
-        st.write(file_ext)
         
         if file_ext in [".xlsx", ".xls"]:
             try:
@@ -728,7 +727,6 @@ def load_googledrive_excel_callback():
             data = parse_resume_with_ai(extracted_text)
         
             if data:
-                st.write(data)
                 try:
                     # 基本情報の反映
                     st.session_state.pi_furigana = data.get("furigana", "")
@@ -852,8 +850,8 @@ with st.sidebar:
     page = st.radio("ページ選択", ["ホーム", "基本情報", "開発経験サマリ", "業務履歴", "AIによる改善"])
     
 uploaded_file = st.file_uploader(
-    "対応ファイル：xlsx・.xls・pdf・docx）",
-    type=["xlsx", "xls", "pdf", "docx"],
+    "対応ファイル：xlsx・xls・pdf・docx・doc）",
+    type=["xlsx", "xls", "pdf", "docx", "doc"],
     key="excel_uploader",
     on_change=load_from_excel_callback)
 
@@ -882,7 +880,7 @@ def basic_info():
 
 def deve_expe():
     st.subheader("開発経験サマリ")
-    st.session_state.pi_summary = st.text_area("自由記述", value=st.session_state.pi_summary,
+    st.session_state.pi_summary = st.text_area("自由記述　内容を書き込むと「生成AIに改善を依頼」でAIがまとめます", value=st.session_state.pi_summary,
                                   placeholder="例：\n経験年数\n使用してきた技術(言語、フレームワーク、クラウドなど)\n役割(要件定義、基本設計、実装、運用など)\n実績・得意分野", height=175)
 
 def business_history():
