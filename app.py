@@ -558,6 +558,7 @@ def load_from_excel_callback():
     elif file_ext in [".docx", ".doc"]:
         use_ai_parsing = True
         extracted_text = extract_text_from_docx(uploaded_file)
+        st.write("doc読み込んだ",extracted_text)
 
     if use_ai_parsing:
         st.info("AIによる自動解析を実行しています...")
