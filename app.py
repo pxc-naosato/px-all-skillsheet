@@ -562,7 +562,7 @@ def parse_resume_with_ai(text_content: str):
             ]
         }
         【対象データ】
-    """) + "\n" + text_content[:30000] # 文字数制限対策（必要に応じて調整）
+    """) + "\n" + text_content[:50000] # 文字数制限対策（必要に応じて調整）
 
     try:
         response = model.generate_content(
@@ -721,8 +721,7 @@ def load_googledrive_excel_callback():
         elif file_ext in [".docx", ".doc"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_docx(content)
-            st.success("Word読み込み中")
-
+            
         if use_ai_parsing:
             st.info("AIによる自動解析を実行しています...")
             data = parse_resume_with_ai(extracted_text)
