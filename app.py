@@ -633,6 +633,7 @@ def load_from_excel_callback():
     if use_ai_parsing:
         st.info("AIによる自動解析を実行しています...")
         data = parse_resume_with_ai(extracted_text)
+        st.write(data)
         
         if data:
             try:
@@ -716,7 +717,6 @@ def load_googledrive_excel_callback():
         elif file_ext in [".pdf"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_pdf(content)
-            st.success("PDF読み込み中")
     
         elif file_ext in [".docx", ".doc"]:
             use_ai_parsing = True
@@ -725,7 +725,6 @@ def load_googledrive_excel_callback():
         if use_ai_parsing:
             st.info("AIによる自動解析を実行しています...")
             data = parse_resume_with_ai(extracted_text)
-            st.write(data)
         
             if data:
                 try:
