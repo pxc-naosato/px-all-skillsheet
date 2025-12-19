@@ -690,8 +690,9 @@ def load_googledrive_excel_callback():
     try:
         file_id = gdrive_url.split('/d/')[1].split('/')[0]
         download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
-        content = requests.get(download_url).content
+        #content = requests.get(download_url).content
         response = requests.get(download_url)
+        content = io.BytesIO(response.content)
         
         content_disposition = response.headers.get("Content-Disposition")
         fname_match = re.search(r'filename="(.+)"', content_disposition)
