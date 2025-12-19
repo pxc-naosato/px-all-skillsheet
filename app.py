@@ -555,15 +555,13 @@ def load_from_excel_callback():
         use_ai_parsing = True
         extracted_text = extract_text_from_pdf(uploaded_file)
     
-    elif file_ext in [".docx", ".doc"]:
+    elif file_ext in [".docx"]:
         use_ai_parsing = True
         extracted_text = extract_text_from_docx(uploaded_file)
-        st.write("doc読み込んだ",extracted_text)
 
     if use_ai_parsing:
         st.info("AIによる自動解析を実行しています...")
         data = parse_resume_with_ai(extracted_text)
-        st.write(data)
         
         if data:
             try:
@@ -648,7 +646,7 @@ def load_googledrive_excel_callback():
             use_ai_parsing = True
             extracted_text = extract_text_from_pdf(content)
     
-        elif file_ext in [".docx", ".doc"]:
+        elif file_ext in [".docx"]:
             use_ai_parsing = True
             extracted_text = extract_text_from_docx(content)
             
@@ -781,7 +779,7 @@ with st.sidebar:
     
 uploaded_file = st.file_uploader(
     "対応ファイル：xlsx・xls・pdf・docx・doc）",
-    type=["xlsx", "xls", "pdf", "docx", "doc"],
+    type=["xlsx", "xls", "pdf", "docx"],
     key="excel_uploader",
     on_change=load_from_excel_callback)
 
