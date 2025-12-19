@@ -531,7 +531,7 @@ def load_from_excel_callback():
     if uploaded_file is None:
         return
 
-    response = requests.get(download_url)
+    response = requests.get(uploaded_file)
     content = io.BytesIO(response.content)
 
     file_ext = os.path.splitext(uploaded_file.name)[1].lower()
