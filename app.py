@@ -521,7 +521,7 @@ def parse_resume_with_ai(text_content: str):
         【抽出ルール】
         - 氏名や名前(イニシャルのみやフルネーム等)は"name"に抽出すること。
         - 日付は "YYYY-MM-DD" 形式。不明な場合は null または ""。
-        - 性別は "男性", "女性", "その他", "未選択" のいずれか。
+        - 性別は "男性", "女性", "その他", "未選択" のいずれかに振り分ける。
         - 資格は資格名だけ抽出し、改行区切りの1つの文字列にする。
         - 稼働可能日が明記されていない場合は今日の日付。
         - 案件リストは記載順に抽出。
@@ -636,9 +636,6 @@ def load_from_excel_callback():
         
         if data:
             try:
-                data = read_personal(data)
-                st.write(data)
-                
                 # 基本情報の反映
                 st.session_state.pi_furigana = data.get("furigana", "")
                 st.session_state.pi_name = data.get("name", "")
