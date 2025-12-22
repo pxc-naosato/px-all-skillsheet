@@ -449,6 +449,7 @@ def parse_resume_with_ai(text_content: str):
         
         【抽出ルール】
         - 氏名や名前(イニシャルのみやフルネーム等)は"name"に抽出すること。
+        - "name"に文字列「氏名」や「名前」を代入しないこと
         - 日付は "YYYY-MM-DD" 形式。不明な場合は null または ""。
         - 性別は "男性", "女性", "その他", "未選択" のいずれかに必ず振り分ける。
         - 資格は資格名だけ抽出し、改行区切りの1つの文字列にする。
@@ -544,8 +545,6 @@ def load_from_excel_callback():
                 
             use_ai_parsing = True
             extracted_text = extract_text_from_excel_general(uploaded_file)
-
-            st.success("Excelの内容を入力欄へ反映しました。")
 
         except Exception as e:
             use_ai_parsing = True
