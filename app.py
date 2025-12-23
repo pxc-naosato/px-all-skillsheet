@@ -535,7 +535,7 @@ def load_from_excel_callback():
     use_ai_parsing = False
     extracted_text = ""
 
-    if file_ext in [".xlsx", ".xls"]:
+    if file_ext in [".xlsx"]:
         try:
             xl = pd.ExcelFile(uploaded_file)
             df = choose_best_sheet(xl)
@@ -626,7 +626,7 @@ def load_googledrive_excel_callback():
         filename = fname_match.group(1)
         file_ext = os.path.splitext(filename)[1].lower()
         
-        if file_ext in [".xlsx", ".xls"]:
+        if file_ext in [".xlsx"]:
             try:
                 xl = pd.ExcelFile(content)
                 df = pd.read_excel(xl)
@@ -776,8 +776,8 @@ with st.sidebar:
     page = st.radio("ページ選択", ["ホーム", "基本情報", "開発経験サマリ", "業務履歴", "AIによる改善"])
     
 uploaded_file = st.file_uploader(
-    "対応ファイル：xlsx・xls・pdf・docx）",
-    type=["xlsx", "xls", "pdf", "docx"],
+    "対応ファイル：xlsx・pdf・docx）",
+    type=["xlsx", "pdf", "docx"],
     key="excel_uploader",
     on_change=load_from_excel_callback)
 
