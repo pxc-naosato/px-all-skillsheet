@@ -549,7 +549,7 @@ def load_from_excel_callback():
             use_ai_parsing = True
             extracted_text = extract_text_from_excel_general(uploaded_file)
 
-    elif file_ext == ".pdf":
+    elif file_ext in [".pdf"]:
         use_ai_parsing = True
         extracted_text = extract_text_from_pdf(uploaded_file)
     
@@ -562,7 +562,7 @@ def load_from_excel_callback():
         data = parse_resume_with_ai(extracted_text)
         
         if data:
-            st.write(extracted_text, data)
+            st.write(uploaded_file, data)
             try:
                 # 基本情報の反映
                 st.session_state.pi_furigana = data.get("furigana", "")
