@@ -9,6 +9,7 @@ import os
 import requests
 import docx
 import json
+import pdfplumber
 from textwrap import dedent
 from typing import Union
 from pypdf import PdfReader
@@ -397,14 +398,30 @@ def parse_projects(df: pd.DataFrame) -> list:
     return projects
 
 def extract_text_from_pdf(file) -> str:
+    text_output = ""
+    
     try:
-        reader = PdfReader(file)
-        text = ""
-        for page in reader.pages:
-            text += page.extract_text() + "\n"
-        return text
+        # pdfplumberはファイルパスまたはファイルオブジェクトを受け取れます
+        with pdfplumber.open(file) as pdf:
+            for page in pdf.pages:
+                tables = page.extract_tables()
+                if tables:
+                    text_output += "\n--- Table Data (Row by Row) ---\n"
+                    for table in tables:
+                        for row in table:
+                            cleaned_row = [str(cell).replace("\n", " ") if cell is not None else "" for cell in row]
+                            text_output += " | ".join(cleaned_row) + "\n"
+                    text_output += "\n"
+
+                page_text = page.extract_text(layout=True)
+                if page_text:
+                    text_output += "\n--- Raw Text (Layout Preserved) ---\n"
+                    text_output += page_text + "\n"
+                    
+        return text_output
+
     except Exception as e:
-        return f"Error reading PDF: {e}"
+        return f"Error reading PDF with pdfplumber: {e}"
 
 def extract_text_from_docx(file) -> str:
     try:
