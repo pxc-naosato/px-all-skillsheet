@@ -572,8 +572,6 @@ def parse_resume_with_ai_multimodal(content_input):
     
     input_data = [base_prompt]
     input_data.extend(content_input)
-
-    st.write(input_data)
     
     try:
         # Gemini呼び出し
@@ -581,6 +579,7 @@ def parse_resume_with_ai_multimodal(content_input):
             input_data,
             generation_config={"response_mime_type": "application/json"}
         )
+        st.write(len(response.text))
         return json.loads(response.text)
     except Exception as e:
         st.error(f"AI解析エラー: {e}")
