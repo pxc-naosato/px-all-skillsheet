@@ -9,7 +9,8 @@ import os
 import requests
 import docx
 import json
-import pdfplumber
+from pdf2image import convert_from_bytes
+import base64
 from textwrap import dedent
 from typing import Union
 from pypdf import PdfReader
@@ -398,30 +399,18 @@ def parse_projects(df: pd.DataFrame) -> list:
     return projects
 
 def extract_text_from_pdf(file) -> str:
-    text_output = ""
+    images = convert_from_bytes(file_bytes)
     
-    try:
-        # pdfplumberはファイルパスまたはファイルオブジェクトを受け取れます
-        with pdfplumber.open(file) as pdf:
-            for page in pdf.pages:
-                tables = page.extract_tables()
-                if tables:
-                    text_output += "\n--- Table Data (Row by Row) ---\n"
-                    for table in tables:
-                        for row in table:
-                            cleaned_row = [str(cell).replace("\n", " ") if cell is not None else "" for cell in row]
-                            text_output += " | ".join(cleaned_row) + "\n"
-                    text_output += "\n"
+    # 画像をGeminiに渡せる形式に変換 & プロンプト作成
+    # (ここは実際のAPI呼び出しフローに合わせて調整してください)
+    contents = ["以下の職務経歴書の画像から、JSON形式でデータを抽出してください..."]
+    
+    for img in images:
+        contents.append(img) # 画像オブジェクトを直接渡せます(genaiのバージョンによる)
 
-                page_text = page.extract_text(layout=True)
-                if page_text:
-                    text_output += "\n--- Raw Text (Layout Preserved) ---\n"
-                    text_output += page_text + "\n"
-                    
-        return text_output
-
-    except Exception as e:
-        return f"Error reading PDF with pdfplumber: {e}"
+    model = genai.GenerativeModel('gemini-2.5-flash-lite')
+    response = model.generate_content(contents)
+    return response.text
 
 def extract_text_from_docx(file) -> str:
     try:
