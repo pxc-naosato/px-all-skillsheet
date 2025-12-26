@@ -398,13 +398,14 @@ def parse_projects(df: pd.DataFrame) -> list:
 
 def extract_text_from_pdf(file) -> str:
     tmp_path = None
+    st.write(file)
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(file.getvalue())
             tmp_path = tmp.name
 
         uploaded_file = genai.upload_file(tmp_path, mime_type="application/pdf")
-
+        st.write(uploaded_file)
         model = genai.GenerativeModel("gemini-2.5-flash-lite") 
 
         prompt = dedent("""
