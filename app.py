@@ -398,7 +398,6 @@ def parse_projects(df: pd.DataFrame) -> list:
 
 def extract_text_from_pdf(file) -> str:
     tmp_path = None
-    st.write("変数", file)
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(file.getvalue())
@@ -416,8 +415,8 @@ def extract_text_from_pdf(file) -> str:
         """)
         
         response = model.generate_content(prompt) + uploaded_file
-
-        st.write(file, uploaded_file, response.text)
+        uploaded_file.delete()
+        st.write(response.text)
         
         return response.text
 
