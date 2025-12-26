@@ -427,6 +427,7 @@ def extract_text_from_pdf(file) -> str:
         # 一時ファイルの削除
         if tmp_path and os.path.exists(tmp_path):
             os.remove(tmp_path)
+            st.write("ファイル削除：")
 
 def extract_text_from_docx(file) -> str:
     try:
