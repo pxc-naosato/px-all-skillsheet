@@ -645,7 +645,7 @@ def load_from_excel_callback():
             uploaded_file.seek(0)
 
         with st.spinner("PDFを画像変換中..."):
-            images = convert_pdf_to_images(uploaded_file)
+            images = extract_text_from_pdf(uploaded_file)
         
         if images:
             with st.spinner("Geminiが画像を視覚的に解析中..."):
