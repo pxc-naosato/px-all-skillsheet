@@ -569,16 +569,12 @@ def parse_resume_with_ai_multimodal(content_input):
             ]
         }
     """)
-
-    input_data = [base_prompt]
     
-    if isinstance(content_input, list):
-        # 画像リストの場合 (PDFからの変換)
-        input_data.extend(content_input)
-    else:
-        # テキストの場合 (Word/Excel/PDFテキスト抽出)
-        input_data.append(content_input)
+    input_data = [base_prompt]
+    input_data.extend(content_input)
 
+    st.write(input_data)
+    
     try:
         # Gemini呼び出し
         response = model.generate_content(
