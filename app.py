@@ -416,7 +416,7 @@ def extract_text_from_pdf(file) -> str:
         
         response = model.generate_content(prompt) + uploaded_file
 
-        st.write(file, uploaded_file, response)
+        st.write(file, uploaded_file, response.text)
         
         return response.text
 
