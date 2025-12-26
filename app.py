@@ -9,8 +9,6 @@ import os
 import requests
 import docx
 import json
-from pdf2image import convert_from_bytes
-import base64
 from textwrap import dedent
 from typing import Union
 from pypdf import PdfReader
@@ -399,18 +397,34 @@ def parse_projects(df: pd.DataFrame) -> list:
     return projects
 
 def extract_text_from_pdf(file) -> str:
-    images = convert_from_bytes(file_bytes)
-    
-    # 画像をGeminiに渡せる形式に変換 & プロンプト作成
-    # (ここは実際のAPI呼び出しフローに合わせて調整してください)
-    contents = ["以下の職務経歴書の画像から、JSON形式でデータを抽出してください..."]
-    
-    for img in images:
-        contents.append(img) # 画像オブジェクトを直接渡せます(genaiのバージョンによる)
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(file.getvalue())
+            tmp_path = tmp.name
 
-    model = genai.GenerativeModel('gemini-2.5-flash-lite')
-    response = model.generate_content(contents)
-    return response.text
+        uploaded_file = genai.upload_file(tmp_path, mime_type="application/pdf")
+
+        model = genai.GenerativeModel("gemini-2.5-flash-lite") 
+
+        prompt = """
+        このPDFファイルの内容を、レイアウト構造（表の行と列の関係など）を維持したまま、
+        可能な限り正確にテキスト化してください。
+        特に、作業期間（開始日・終了日）と、それに対応する案件内容がずれないように注意して読み取ってください。
+        出力はテキストデータのみで構いません。
+        """
+        
+        response = model.generate_content([prompt, uploaded_file])
+
+        return response.text
+
+    except Exception as e:
+        return f"Error processing PDF with Gemini: {e}"
+        
+    finally:
+        # 一時ファイルの削除
+        if tmp_path and os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
 def extract_text_from_docx(file) -> str:
     try:
