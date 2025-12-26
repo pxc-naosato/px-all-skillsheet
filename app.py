@@ -399,37 +399,13 @@ def parse_projects(df: pd.DataFrame) -> list:
     return projects
 
 def extract_text_from_pdf(file) -> str:
-    tmp_path = None
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            tmp.write(file.getvalue())
-            tmp_path = tmp.name
-
-        uploaded_file = genai.upload_file(tmp_path, mime_type="application/pdf")
-        st.write("アップロードファイル：" ,uploaded_file)
-        model = genai.GenerativeModel("gemini-2.5-flash-lite") 
-
-        prompt = dedent("""
-        このPDFファイルの内容を、レイアウト構造（表の行と列の関係など）を維持したまま、
-        可能な限り正確にテキスト化してください。
-        特に、作業期間（開始日・終了日）と、それに対応する案件内容がずれないように注意して読み取ってください。
-        出力はテキストデータのみで構いません。
-        """)
-        
-        response = model.generate_content(prompt) + uploaded_file
-        uploaded_file.delete()
-        st.write(response.text)
-        
-        return response.text
-
+        # PDFを画像に変換 (dpi=150程度で十分認識可能、軽量化のため)
+        images = convert_from_bytes(file_bytes.read(), dpi=150)
+        return images
     except Exception as e:
-        return f"Error processing PDF with Gemini: {e}"
-        
-    finally:
-        # 一時ファイルの削除
-        if tmp_path and os.path.exists(tmp_path):
-            os.remove(tmp_path)
-            st.write("ファイル削除：")
+        st.error(f"PDFの画像変換に失敗しました: {e}\nPopplerがインストールされているか確認してください。")
+        return []
 
 def extract_text_from_docx(file) -> str:
     try:
@@ -530,6 +506,93 @@ def parse_resume_with_ai(text_content: str):
         st.error(f"AI解析エラー: {e}")
         return None
 
+def parse_resume_with_ai_multimodal(content_input):
+    """
+    画像リスト または テキスト を受け取り、JSONを生成する
+    """
+    if not API_KEY:
+        st.error("Gemini APIキーが設定されていません。")
+        return None
+
+    # モデル設定 (gemini-2.5-flash-lite を指定)
+    model = genai.GenerativeModel("gemini-2.5-flash-lite")
+
+    # プロンプト定義
+    base_prompt = dedent("""
+        あなたは優秀なデータ入力アシスタントです。
+        提示された職務経歴書（画像またはテキスト）を視覚的に解析し、
+        レイアウト（表の行や列の関係）を正確に読み取って情報を抽出してください。
+        
+        特に「作業期間（開始日・終了日）」と「作業内容・案件名」の対応関係が
+        崩れないように、横の並びを注意深く見てください。
+        
+        【抽出ルール】
+        - 氏名や名前(イニシャルのみやフルネーム等)は"name"に抽出すること。
+        - 日付は "YYYY-MM-DD" 形式で抽出。不明な場合は null または ""。
+        - 性別は "男性", "女性", "その他", "未選択" のいずれかに必ず振り分ける。
+        - 資格は資格名だけ抽出し、改行区切りの1つの文字列にする。
+        - 稼働可能日が明記されていない場合は今日の日付にする。
+        - 案件リストは記載順に抽出。
+        - 開始日・終了日と案件内容は紐づけること
+        - 終了日が "現在" "現" "進行中"の場合、今日の日付にする。
+        - 役割は文脈から["PM(プロジェクトマネージャー)", "PL(プロジェクトリーダー)", "SPL(サブリーダー)", "SE(システムエンジニア)", "PG(プログラマー)"]のどれか判断して"role"に振り分ける。
+        - 技術要素（OS, 言語, DBなど）は文脈から判断して振り分ける。不明なら "lang_tool" にまとめる。
+        - 技術要素（OS, 言語, DBなど）で「REHL6,7,8」のような記載があった場合、「RHEL6」「RHEL7」といった形で別々に振り分けること。
+        - "scale"には人数のみ抽出すること。
+        - 作業工程は以下のリストから当てはまるものを選んでリスト化する:
+          ["調査分析、要件定義", "基本（外部）設計", "詳細（内部）設計", "コーディング・単体テスト", "IT・ST", "システム運用・保守", "サーバー構築・運用管理", "DB構築・運用管理", "ネットワーク運用保守", "ヘルプ・サポート", "その他"]
+        
+        【出力JSONスキーマ】
+        {
+            "furigana": "フリガナ",
+            "name": "氏名",
+            "birth_date": "YYYY-MM-DD",
+            "gender": "性別",
+            "address": "現住所（都道府県市区町村までで可）",
+            "station": "最寄駅",
+            "education": "最終学歴",
+            "available_date": "YYYY-MM-DD",
+            "qualification": "資格リスト文字列",
+            "summary": "自己PRや経歴要約",
+            "projects": [
+                {
+                    "start_date": "YYYY-MM-DD",
+                    "end_date": "YYYY-MM-DD",
+                    "project_name": "案件名",
+                    "industry": "業種",
+                    "role": "役割(PM, SE, PGなど)",
+                    "position": "ポジション(メンバーなど)",
+                    "scale": "規模",
+                    "os": "OS",
+                    "lang_tool": "言語・ツール",
+                    "db_dc": "DB・MW",
+                    "work_content": "作業内容（箇条書き推奨）",
+                    "work_process_list": ["工程1", "工程2"]
+                }
+            ]
+        }
+    """)
+
+    input_data = [base_prompt]
+    
+    if isinstance(content_input, list):
+        # 画像リストの場合 (PDFからの変換)
+        input_data.extend(content_input)
+    else:
+        # テキストの場合 (Word/Excel/PDFテキスト抽出)
+        input_data.append(content_input)
+
+    try:
+        # Gemini呼び出し
+        response = model.generate_content(
+            input_data,
+            generation_config={"response_mime_type": "application/json"}
+        )
+        return json.loads(response.text)
+    except Exception as e:
+        st.error(f"AI解析エラー: {e}")
+        return None
+
 # =========================
 # Session 初期化
 # =========================
@@ -578,7 +641,16 @@ def load_from_excel_callback():
 
     elif file_ext in [".pdf"]:
         use_ai_parsing = True
-        extracted_text = extract_text_from_pdf(uploaded_file)
+        if hasattr(uploaded_file, 'seek'):
+            uploaded_file.seek(0)
+
+        with st.spinner("PDFを画像変換中..."):
+            images = convert_pdf_to_images(uploaded_file)
+        
+        if images:
+            with st.spinner("Geminiが画像を視覚的に解析中..."):
+                extracted_text = parse_resume_with_ai_multimodal(images)
+
     
     elif file_ext in [".docx"]:
         use_ai_parsing = True
