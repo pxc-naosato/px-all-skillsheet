@@ -398,10 +398,10 @@ def parse_projects(df: pd.DataFrame) -> list:
     projects = [p for p in projects if (p["project_name"] or p["work_content"])]
     return projects
 
-def extract_text_from_pdf(file) -> str:
+def extract_text_from_pdf(file) -> list[PIL.Image.Image]:
     try:
         # PDFを画像に変換 (dpi=150程度で十分認識可能、軽量化のため)
-        images = convert_from_bytes(file_bytes.read(), dpi=150)
+        images = convert_from_bytes(file.read(), dpi=150)
         return images
     except Exception as e:
         st.error(f"PDFの画像変換に失敗しました: {e}\nPopplerがインストールされているか確認してください。")
