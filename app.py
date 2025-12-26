@@ -9,8 +9,8 @@ import os
 import requests
 import docx
 import json
+import PIL.Image
 from pdf2image import convert_from_bytes
-from PIL import Image
 from textwrap import dedent
 from typing import Union
 from pypdf import PdfReader
