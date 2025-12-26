@@ -507,9 +507,6 @@ def parse_resume_with_ai(text_content: str):
         return None
 
 def parse_resume_with_ai_multimodal(content_input):
-    """
-    画像リスト または テキスト を受け取り、JSONを生成する
-    """
     if not API_KEY:
         st.error("Gemini APIキーが設定されていません。")
         return None
@@ -646,11 +643,6 @@ def load_from_excel_callback():
 
         with st.spinner("PDFを画像変換中..."):
             images = extract_text_from_pdf(uploaded_file)
-        
-        if images:
-            with st.spinner("Geminiが画像を視覚的に解析中..."):
-                extracted_text = parse_resume_with_ai_multimodal(images)
-
     
     elif file_ext in [".docx"]:
         use_ai_parsing = True
@@ -658,7 +650,13 @@ def load_from_excel_callback():
 
     if use_ai_parsing:
         st.info("AIによる自動解析を実行しています...")
-        data = parse_resume_with_ai(extracted_text)
+
+        if file_ext in [".pdf"]:
+            with st.spinner("Geminiが画像を視覚的に解析中..."):
+                data = parse_resume_with_ai_multimodal(images)
+            
+        else
+            data = parse_resume_with_ai(extracted_text)
         
         if data:
             try:
