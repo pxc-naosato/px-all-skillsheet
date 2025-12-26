@@ -407,12 +407,12 @@ def extract_text_from_pdf(file) -> str:
 
         model = genai.GenerativeModel("gemini-2.5-flash-lite") 
 
-        prompt = """
+        prompt = dedent("""
         このPDFファイルの内容を、レイアウト構造（表の行と列の関係など）を維持したまま、
         可能な限り正確にテキスト化してください。
         特に、作業期間（開始日・終了日）と、それに対応する案件内容がずれないように注意して読み取ってください。
         出力はテキストデータのみで構いません。
-        """
+        """)
         
         response = model.generate_content([prompt, uploaded_file])
 
