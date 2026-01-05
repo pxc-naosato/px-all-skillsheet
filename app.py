@@ -577,9 +577,8 @@ def parse_resume_with_ai_multimodal(content_input):
     
     input_data = [base_prompt]
     input_data.extend(content_input)
-    
+    st.write(input_data)
     try:
-        st.write(input_data)
         # Gemini呼び出し
         response = model.generate_content(
             input_data,
@@ -661,7 +660,6 @@ def load_from_excel_callback():
 
         if file_ext in [".pdf"]:
             with st.spinner("Geminiが画像を視覚的に解析中..."):
-                print("PDFだよ")
                 data = parse_resume_with_ai_multimodal(images)
             
         else:
