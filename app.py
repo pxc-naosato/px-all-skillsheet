@@ -594,7 +594,7 @@ def parse_resume_with_ai_multimodal(content_input):
         
         return json.loads(response.text, strict=False)
     except Exception as e:
-        st.error(f"AI解析エラー: {e}")
+        st.error(f"AI解析エラーです: {e}")
         return None
 
 # =========================
