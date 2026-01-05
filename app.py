@@ -590,9 +590,10 @@ def parse_resume_with_ai_multimodal(content_input):
         #response = re.sub(r'^```\s*', '', response, flags=re.MULTILINE)
         #response = re.sub(r'```$', '', response, flags=re.MULTILINE)
 
-        if response_text.startswith("```"):
-            response_text = re.sub(r"^```[a-zA-Z]*\n?", "", response_text)
-            response_text = re.sub(r"\n?```$", "", response_text)
+        if response.startswith("```"):
+            st.write("文字修正中")
+            response = re.sub(r"^```[a-zA-Z]*\n?", "", response)
+            response = re.sub(r"\n?```$", "", response)
         
         st.write("文字修正後")
         # 前後の空白除去
