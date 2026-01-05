@@ -586,9 +586,14 @@ def parse_resume_with_ai_multimodal(content_input):
             generation_config={"response_mime_type": "application/json"}
         )
         st.write("読み込み後")
-        response = re.sub(r'^```json\s*', '', response, flags=re.MULTILINE)
-        response = re.sub(r'^```\s*', '', response, flags=re.MULTILINE)
-        response = re.sub(r'```$', '', response, flags=re.MULTILINE)
+        #response = re.sub(r'^```json\s*', '', response, flags=re.MULTILINE)
+        #response = re.sub(r'^```\s*', '', response, flags=re.MULTILINE)
+        #response = re.sub(r'```$', '', response, flags=re.MULTILINE)
+
+        if response_text.startswith("```"):
+            response_text = re.sub(r"^```[a-zA-Z]*\n?", "", response_text)
+            response_text = re.sub(r"\n?```$", "", response_text)
+        
         st.write("文字修正後")
         # 前後の空白除去
         response = response.strip()
