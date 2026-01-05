@@ -512,7 +512,7 @@ def parse_resume_with_ai_multimodal(content_input):
         return None
 
     # モデル設定 (gemini-2.5-flash-lite を指定)
-    model = genai.GenerativeModel("gemini-2.5-flash-lite")
+    model = genai.GenerativeModel("gemini-2.5-flash")
 
     # プロンプト定義
     base_prompt = dedent("""
