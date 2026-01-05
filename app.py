@@ -592,7 +592,7 @@ def parse_resume_with_ai_multimodal(content_input):
         # 前後の空白除去
         response = response.strip()
     
-        return json.loads(response.text)
+        return json.loads(response.text, strict=False)
     except Exception as e:
         st.error(f"AI解析エラー: {e}")
         return None
