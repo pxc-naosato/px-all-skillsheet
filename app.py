@@ -584,6 +584,14 @@ def parse_resume_with_ai_multimodal(content_input):
             input_data,
             generation_config={"response_mime_type": "application/json"}
         )
+
+        response = re.sub(r'^```json\s*', '', response, flags=re.MULTILINE)
+        response = re.sub(r'^```\s*', '', response, flags=re.MULTILINE)
+        response = re.sub(r'```$', '', response, flags=re.MULTILINE)
+    
+        # 前後の空白除去
+        response = response.strip()
+    
         return json.loads(response.text)
     except Exception as e:
         st.error(f"AI解析エラー: {e}")
