@@ -575,26 +575,24 @@ def parse_resume_with_ai_multimodal(content_input):
         }
     """)
     
-    print("プロンプト読み込み")
     input_data = [base_prompt]
-    print("画像リスト読み込み")
     input_data.extend(content_input)
     
     try:
-        print("読み込み")
+        st.write(input_data)
         # Gemini呼び出し
         response = model.generate_content(
             input_data,
             generation_config={"response_mime_type": "application/json"}
         )
-        print("読み込み後")
+        st.write(response)
         response = re.sub(r'^```json\s*', '', response, flags=re.MULTILINE)
         response = re.sub(r'^```\s*', '', response, flags=re.MULTILINE)
         response = re.sub(r'```$', '', response, flags=re.MULTILINE)
-        print("文字修正")
+        st.write(response)
         # 前後の空白除去
         response = response.strip()
-        print("空白削除")
+        
         return json.loads(response.text, strict=False)
     except Exception as e:
         st.error(f"AI解析エラー: {e}")
