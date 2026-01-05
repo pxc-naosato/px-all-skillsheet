@@ -577,18 +577,19 @@ def parse_resume_with_ai_multimodal(content_input):
     
     input_data = [base_prompt]
     input_data.extend(content_input)
-    st.write(input_data)
+    
     try:
+        st.write("読み込み前")
         # Gemini呼び出し
         response = model.generate_content(
             input_data,
             generation_config={"response_mime_type": "application/json"}
         )
-        st.write(response)
+        st.write("読み込み後")
         response = re.sub(r'^```json\s*', '', response, flags=re.MULTILINE)
         response = re.sub(r'^```\s*', '', response, flags=re.MULTILINE)
         response = re.sub(r'```$', '', response, flags=re.MULTILINE)
-        st.write(response)
+        st.write("文字修正後")
         # 前後の空白除去
         response = response.strip()
         
@@ -659,7 +660,7 @@ def load_from_excel_callback():
         st.info("AIによる自動解析を実行しています...")
 
         if file_ext in [".pdf"]:
-            with st.spinner("Geminiが画像を視覚的に解析中です..."):
+            with st.spinner("Geminiが画像を視覚的に解析中..."):
                 data = parse_resume_with_ai_multimodal(images)
             
         else:
