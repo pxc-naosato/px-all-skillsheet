@@ -579,13 +579,12 @@ def parse_resume_with_ai_multimodal(content_input):
     input_data.extend(content_input)
     
     try:
-        st.write("読み込み前")
         # Gemini呼び出し
         response = model.generate_content(
             input_data,
             generation_config={"response_mime_type": "application/json"}
         )
-        st.write("読み込み後")
+        
         response_text = response.text.strip()
 
         if response_text.startswith("```"):
@@ -595,10 +594,6 @@ def parse_resume_with_ai_multimodal(content_input):
         #response = re.sub(r'^```json\s*', '', response, flags=re.MULTILINE)
         #response = re.sub(r'^```\s*', '', response, flags=re.MULTILINE)
         #response = re.sub(r'```$', '', response, flags=re.MULTILINE)
-        
-        st.write("文字修正後")
-        # 前後の空白除去
-        #response = response.strip()
         
         return json.loads(response_text)
     except Exception as e:
