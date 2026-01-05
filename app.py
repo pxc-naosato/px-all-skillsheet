@@ -503,7 +503,7 @@ def parse_resume_with_ai(text_content: str):
         )
         return json.loads(response.text)
     except Exception as e:
-        st.error(f"AI解析エラー: {e}")
+        st.error(f"PDF以外のAI解析エラー: {e}")
         return None
 
 def parse_resume_with_ai_multimodal(content_input):
