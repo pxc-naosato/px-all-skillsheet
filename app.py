@@ -574,8 +574,10 @@ def parse_resume_with_ai_multimodal(content_input):
             ]
         }
     """)
-    
+
+    st.write("プロンプト読み込み")
     input_data = [base_prompt]
+    st.write("画像リスト読み込み")
     input_data.extend(content_input)
     
     try:
