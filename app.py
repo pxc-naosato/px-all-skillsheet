@@ -659,11 +659,10 @@ def load_from_excel_callback():
         st.info("AIによる自動解析を実行しています...")
 
         if file_ext in [".pdf"]:
-            with st.spinner("Geminiが画像を視覚的に解析中..."):
+            with st.spinner("Geminiが画像を視覚的に解析中です..."):
                 data = parse_resume_with_ai_multimodal(images)
             
         else:
-            print("PDF以外")
             data = parse_resume_with_ai(extracted_text)
         
         if data:
