@@ -663,6 +663,7 @@ def load_from_excel_callback():
                 data = parse_resume_with_ai_multimodal(images)
             
         else:
+            print("PDF以外")
             data = parse_resume_with_ai(extracted_text)
         
         if data:
