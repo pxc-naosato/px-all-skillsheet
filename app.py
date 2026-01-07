@@ -639,7 +639,8 @@ def load_from_excel_callback():
             df = choose_best_sheet(xl)
             if df is None:
                 return
-                
+
+            st.write("社内")
             use_ai_parsing = True
             extracted_text = extract_text_from_excel_general(uploaded_file)
 
