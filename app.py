@@ -644,6 +644,7 @@ def load_from_excel_callback():
             extracted_text = extract_text_from_excel_general(uploaded_file)
 
         except Exception as e:
+            st.write("社外")
             use_ai_parsing = True
             extracted_text = extract_text_from_excel_general(uploaded_file)
 
