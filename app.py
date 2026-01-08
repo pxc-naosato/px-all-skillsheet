@@ -665,7 +665,6 @@ def load_from_excel_callback():
     
         if data:
             try:
-                st.write("tes1", data)
                 # 基本情報の反映
                 st.session_state.pi_furigana = data.get("furigana", "")
                 st.session_state.pi_name = data.get("name", "")
