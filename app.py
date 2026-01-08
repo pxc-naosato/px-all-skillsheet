@@ -634,20 +634,9 @@ def load_from_excel_callback():
     extracted_text = ""
 
     if file_ext in [".xlsx"]:
-        try:
-            xl = pd.ExcelFile(uploaded_file)
-            df = choose_best_sheet(xl)
-            if df is None:
-                return
-
-            st.write("社内")
-            use_ai_parsing = True
-            extracted_text = extract_text_from_excel_general(uploaded_file)
-
-        except Exception as e:
-            st.write("社外")
-            use_ai_parsing = True
-            extracted_text = extract_text_from_excel_general(uploaded_file)
+        st.write("統一")
+        use_ai_parsing = True
+        extracted_text = extract_text_from_excel_general(uploaded_file)
 
     elif file_ext in [".pdf"]:
         use_ai_parsing = True
