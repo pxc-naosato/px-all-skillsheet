@@ -662,18 +662,13 @@ def load_from_excel_callback():
         
         if data:
             try:
-                st.write("tes1", data)
+                st.write("tes1", data.get("furigana", ""))
                 # 基本情報の反映
                 st.session_state.pi_furigana = data.get("furigana", "")
-                st.write("tes2")
                 st.session_state.pi_name = data.get("name", "")
-                st.write("tes3")
                 st.session_state.pi_address = data.get("address", "")
-                st.write("tes4")
                 st.session_state.pi_nearest_station = data.get("station", "")
-                st.write("tes5")
                 st.session_state.pi_education = data.get("education", "")
-                st.write("tes6")
                 
                 # 日付変換ユーティリティ
                 def parse_iso_date(s):
