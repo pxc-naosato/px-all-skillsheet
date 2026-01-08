@@ -759,12 +759,13 @@ def load_googledrive_excel_callback():
                     st.session_state.pi_address = data.get("address", "")
                     st.session_state.pi_nearest_station = data.get("station", "")
                     st.session_state.pi_education = data.get("education", "")
-                
+                    st.write("tes1")
                     # 日付変換ユーティリティ
                     def parse_iso_date(s):
                         if not s: return None
                         try: return datetime.strptime(s, "%Y-%m-%d").date()
                         except: return None
+                    st.write("tes2")
 
                     st.session_state.pi_birth_date = parse_iso_date(data.get("birth_date")) or date(2000,1,1)
                     st.session_state.pi_available_date = parse_iso_date(data.get("available_date")) or datetime.now().date()
@@ -772,6 +773,7 @@ def load_googledrive_excel_callback():
                     st.session_state.pi_qualifications_input = data.get("qualification", "")
                     st.session_state.pi_summary = data.get("summary", "")
 
+                    st.write("tes3")
                     # 案件情報の反映
                     projects = []
                     for p in data.get("projects", []):
