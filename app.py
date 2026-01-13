@@ -659,7 +659,6 @@ def load_from_excel_callback():
     extracted_text = ""
 
     if file_ext in [".xlsx"]:
-        st.write("統一")
         use_ai_parsing = True
         extracted_text = extract_text_from_excel_general(uploaded_file)
 
@@ -1368,7 +1367,7 @@ def ai_impr():
             ws.row_dimensions[2].height = 23
             ws.row_dimensions[3].height = 23
             ws.row_dimensions[12].height = calculate_row_size(st.session_state.pi_summary) * 20
-            st.write(calculate_row_size(st.session_state.pi_summary))
+
         st.download_button(
             label="スキルシートをダウンロード",
             data=output.getvalue(),
