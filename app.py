@@ -675,7 +675,7 @@ def load_from_excel_callback():
         extracted_text = extract_text_from_docx(uploaded_file)
 
     if use_ai_parsing:
-        st.info("AIによる自動解析を実行しています...")
+        st.spinner("AIによる自動解析を実行しています...")
 
         if file_ext in [".pdf"]:
             with st.spinner("Geminiが画像を視覚的に解析中..."):
@@ -768,7 +768,11 @@ def load_googledrive_excel_callback():
 
         elif file_ext in [".pdf"]:
             use_ai_parsing = True
-            extracted_text = extract_text_from_pdf(content)
+            if hasattr(uploaded_file, 'seek'):
+                uploaded_file.seek(0)
+
+            with st.spinner("PDFを画像変換中..."):
+                images = extract_text_from_pdf(uploaded_file)
     
         elif file_ext in [".docx"]:
             use_ai_parsing = True
@@ -777,7 +781,17 @@ def load_googledrive_excel_callback():
         if use_ai_parsing:
             st.info("AIによる自動解析を実行しています...")
             data = parse_resume_with_ai(extracted_text)
-        
+
+            if file_ext in [".pdf"]:
+                with st.spinner("Geminiが画像を視覚的に解析中..."):
+                data = parse_resume_with_ai_multimodal(images)
+            
+            else:
+                data = parse_resume_with_ai(extracted_text)
+            
+            if isinstance(data, list):
+                data = data[0]
+            
             if data:
                 try:
                     # 基本情報の反映
