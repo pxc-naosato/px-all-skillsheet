@@ -675,7 +675,7 @@ def load_from_excel_callback():
         extracted_text = extract_text_from_docx(uploaded_file)
 
     if use_ai_parsing:
-        st.spinner("AIによる自動解析を実行しています...")
+        st.info("AIによる自動解析を実行しています...")
 
         if file_ext in [".pdf"]:
             with st.spinner("Geminiが画像を視覚的に解析中..."):
