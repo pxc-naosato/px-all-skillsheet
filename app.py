@@ -784,7 +784,7 @@ def load_googledrive_excel_callback():
 
             if file_ext in [".pdf"]:
                 with st.spinner("Geminiが画像を視覚的に解析中..."):
-                data = parse_resume_with_ai_multimodal(images)
+                    data = parse_resume_with_ai_multimodal(images)
             
             else:
                 data = parse_resume_with_ai(extracted_text)
