@@ -916,7 +916,7 @@ with st.sidebar:
     page = st.radio("ページ選択", ["ホーム", "基本情報", "開発経験サマリ", "業務履歴", "AIによる改善"])
     
 uploaded_file = st.file_uploader(
-    "対応ファイル：xlsx・pdf・docx",
+    "対応ファイル：xlsx・pdf・docx）",
     type=["xlsx", "pdf", "docx"],
     key="excel_uploader",
     on_change=load_from_excel_callback)
